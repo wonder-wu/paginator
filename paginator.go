@@ -9,6 +9,8 @@ import (
 
 type FuncType int
 
+const maxInt = 9223372036854775807
+
 const (
 	_       FuncType = iota
 	Find             //gorm Find
@@ -33,7 +35,7 @@ type Params struct {
 	RelatedKey string   //related forigen key
 }
 
-//Paginate takes params
+// Paginate takes params
 func Paginate(param Params, result interface{}) (*Pagination, error) {
 	var pagination Pagination
 
@@ -73,11 +75,14 @@ func Paginate(param Params, result interface{}) (*Pagination, error) {
 	} else {
 		pagination.PrePage = param.Page - 1
 	}
-
-	if (param.Page + 1) >= pagination.LastPage {
-		pagination.NextPage = pagination.LastPage
+	if param.Page < maxInt {
+		if (param.Page + 1) >= pagination.LastPage {
+			pagination.NextPage = pagination.LastPage
+		} else {
+			pagination.NextPage = param.Page + 1
+		}
 	} else {
-		pagination.NextPage = param.Page + 1
+		pagination.NextPage = maxInt
 	}
 
 	offset := (pagination.CurrentPage - 1) * pagination.PerPage
