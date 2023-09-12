@@ -4,7 +4,7 @@ import (
 	"errors"
 	"math"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type FuncType int
@@ -18,7 +18,7 @@ const (
 )
 
 type Pagination struct {
-	Total       int         `json:"total"`
+	Total       int64       `json:"total"`
 	PerPage     int         `json:"per_page"`
 	PrePage     int         `json:"pre_page"`
 	CurrentPage int         `json:"current_page"`
@@ -54,7 +54,7 @@ func Paginate(param Params, result interface{}) (*Pagination, error) {
 	case Related:
 		pagination.Total = gquery.Association(param.RelatedKey).Count()
 	default:
-		return nil, errors.New("Func type not supported")
+		return nil, errors.New("func type not supported")
 
 	}
 
@@ -66,8 +66,7 @@ func Paginate(param Params, result interface{}) (*Pagination, error) {
 	if param.Page < 1 {
 		param.Page = 1
 	} else if param.Page > pagination.LastPage {
-		// param.Page = pagination.LastPage
-
+		param.Page = pagination.LastPage
 	}
 	pagination.CurrentPage = param.Page
 	if (param.Page - 1) <= 0 {
@@ -97,11 +96,11 @@ func Paginate(param Params, result interface{}) (*Pagination, error) {
 			return nil, err
 		}
 	case Related:
-		if err := gquery.Limit(pagination.PerPage).Offset(offset).Related(result, param.RelatedKey).Error; err != nil {
+		if err := gquery.Limit(pagination.PerPage).Offset(offset).Association(param.RelatedKey).Find(result); err != nil {
 			return nil, err
 		}
 	default:
-		return nil, errors.New("Func type not supported")
+		return nil, errors.New("func type not supported")
 
 	}
 
