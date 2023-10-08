@@ -1,4 +1,4 @@
-module github.com/wonder-wu/paginator
+module github.com/wonder-wu/paginator/v2
 
 go 1.12
 
